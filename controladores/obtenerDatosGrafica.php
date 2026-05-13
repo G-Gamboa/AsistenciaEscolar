@@ -1,10 +1,8 @@
 <?php
 include 'conexion.php';
 
-// Activar visualización de errores
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 try {
-    $conn->set_charset("utf8mb4");
 
     $sql = "
         SELECT 
@@ -40,12 +38,10 @@ try {
         }
     }
 
-    // Imprimir el JSON
     header('Content-Type: application/json');
     echo json_encode($empleados, JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
-    // En caso de error, devolver un JSON con el mensaje de error
     header('Content-Type: application/json');
     echo json_encode(["error" => $e->getMessage()]);
 }

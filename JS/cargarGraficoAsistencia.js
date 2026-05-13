@@ -128,7 +128,7 @@ am5.ready(function () {
         cursor.lineX.set("forceHidden", true);
         chart.appear(1000, 100);
 
-      });
-  })
-    .catch(error => console.error('Error al obtener los datos:', error));
+      })
+      .catch(error => console.error('Error al obtener los datos:', error));
+  });
 

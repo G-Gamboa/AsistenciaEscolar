@@ -14,14 +14,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
-        if ($contraseña === $row['contrasena']) {
+        if (password_verify($contraseña, $row['contrasena'])) {
             $_SESSION['nombre_usuario'] = $nombre_usuario;
+            $_SESSION['id_tipo_usuario'] = $row['id_tipo_usuario'];
 
-            if($row['id_tipo_usuario']===1){
+            if ($row['id_tipo_usuario'] === 1) {
                 header("Location: vistaAdmin.php");
                 exit();
-            }
-            else{
+            } else {
                 header("Location: vistaUsuario.php");
                 exit();
             }

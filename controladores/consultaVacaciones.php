@@ -1,32 +1,25 @@
 <?php
 $sql = "
-SELECT 
+SELECT
     e.nombre,
     e.apellido,
     e.correo,
-    CASE 
-        WHEN (
-            SELECT COUNT(*)
-            FROM RegistroAsistencia ra
-            WHERE ra.id_empleado = e.id
-                AND ra.fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-01-01') AND DATE_FORMAT(CURDATE(), '%Y-11-30')
-        ) > 0 THEN 15
-        ELSE 0
-    END AS vacaciones,
-    CASE 
-        WHEN (
-            SELECT COUNT(*)
-            FROM RegistroAsistencia ra
-            WHERE ra.id_empleado = e.id
-                AND ra.fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-01-01') AND DATE_FORMAT(CURDATE(), '%Y-11-30')
-        ) > 0 THEN 15
-        ELSE 0
-    END - (
-        SELECT SUM(DATEDIFF(p.fecha_fin, p.fecha_inicio) + 1)
-        FROM Permiso p
-        WHERE p.id_empleado = e.id
-    ) AS vacacionesTotales
-FROM Empleado e;
+    CASE WHEN COALESCE(asist.total, 0) > 0 THEN 15 ELSE 0 END AS vacaciones,
+    CASE WHEN COALESCE(asist.total, 0) > 0 THEN 15 ELSE 0 END
+        - COALESCE(perm.dias_usados, 0) AS vacacionesTotales
+FROM Empleado e
+LEFT JOIN (
+    SELECT id_empleado, COUNT(*) AS total
+    FROM RegistroAsistencia
+    WHERE fecha BETWEEN DATE_FORMAT(CURDATE(), '%Y-01-01')
+                    AND DATE_FORMAT(CURDATE(), '%Y-11-30')
+    GROUP BY id_empleado
+) AS asist ON asist.id_empleado = e.id
+LEFT JOIN (
+    SELECT id_empleado, SUM(DATEDIFF(fecha_fin, fecha_inicio) + 1) AS dias_usados
+    FROM Permiso
+    GROUP BY id_empleado
+) AS perm ON perm.id_empleado = e.id
 ";
 
 $result = $conn->query($sql);

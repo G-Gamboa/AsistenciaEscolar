@@ -1,0 +1,10 @@
+# Credenciales de base de datos
+controladores/config.php
+
+# Archivos generados
+archivos/
+Json/vendor/
+
+# Logs y temporales
+*.log
+*.tmp

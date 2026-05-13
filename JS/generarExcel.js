@@ -31,20 +31,4 @@ $(document).ready(function() {
         });
     });
 
-    $('#confirmarBtn').on('click', function() {
-        $.ajax({
-            url: 'enviarCorreos.php',
-            type: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    alert('Correos enviados con éxito');
-                } else {
-                    alert('Hubo un error al enviar los correos');
-                }
-            },
-            error: function(error) {
-                console.error('Error al enviar los correos:', error);
-            }
-        });
-    });
 });

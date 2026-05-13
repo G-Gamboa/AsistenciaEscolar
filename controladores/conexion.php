@@ -1,10 +1,7 @@
 <?php
-$servername = "localhost";
-$username = "asistencia";
-$password = "g3sti0n@1954_"; 
-$database = "AsistenciaPersonal";
+require_once __DIR__ . '/config.php';
 
-$conn = new mysqli($servername, $username, $password, $database);
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 $conn->set_charset("utf8mb4");
 
 if ($conn->connect_error) {

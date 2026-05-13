@@ -15,7 +15,7 @@ $stmt_empleado->bind_param("s", $nombre_usuario);
 $stmt_empleado->execute();
 $result_empleado = $stmt_empleado->get_result();
 
-$sql_opciones ="SELECT * FROM TiposPermiso";
+$sql_opciones = "SELECT id, nombre FROM TiposPermiso";
 $stm_opciones = $conn->prepare($sql_opciones);
 $stm_opciones->execute();
 $result_opciones = $stm_opciones->get_result();
@@ -46,12 +46,19 @@ else {
           $show_error=true;
           $error_message ="La fecha de fin debe ser posterior a la fecha de inicio.";
       } else {
-          $motivoSeleccionado = $_POST['motivo'];
+          $motivoSeleccionado = (int) $_POST['motivo'];
           $descripcion = $_POST['descripcion'];
-  
-          $indice = array_search($motivoSeleccionado, array_column($lista_opciones, 'nombre'));
-          if ($indice !== false) {
-              $idTipoPermiso = $indice+1;
+
+          $idTipoPermiso = null;
+          foreach ($lista_opciones as $op) {
+              if ((int)$op['id'] === $motivoSeleccionado) {
+                  $idTipoPermiso = $motivoSeleccionado;
+                  break;
+              }
+          }
+          if ($idTipoPermiso === null) {
+              $show_error = true;
+              $error_message = "Tipo de permiso no válido.";
           }
 
           $sql_insertar_permiso = "INSERT INTO Permiso (id_empleado, id_tipo_permiso, fecha_inicio, fecha_fin, descripcion, id_estado_permiso) 
@@ -60,7 +67,7 @@ else {
                                     $stmt_insertar_permiso->bind_param("iisss", $idEmpleado, $idTipoPermiso, $fechaInicio, $fechaFin, $descripcion);
 
 
-          if ($stmt_insertar_permiso->execute()) {
+          if ($idTipoPermiso !== null && $stmt_insertar_permiso->execute()) {
             $show_message=true;
             $success_message= "Solicitud de permiso enviada correctamente.";
             header("refresh:2; url=vistaUsuario.php");
@@ -108,11 +115,11 @@ else {
           <form class="row g-3" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
           <div class="col-md-6">
               <label for="inputEmail4" class="form-label">Correo Electrónico</label>
-              <input type="email" class="form-control" id="inputEmail4" value="<?php echo $correo_empleado; ?>" disabled>
+              <input type="email" class="form-control" id="inputEmail4" value="<?php echo htmlspecialchars($correo_empleado); ?>" disabled>
           </div>
           <div class="col-md-6">
               <label for="inputName" class="form-label">Nombre Completo</label>
-              <input type="text" class="form-control" id="inputName" value="<?php echo $nombre_empleado.' '.$apellido_empleado; ?>" disabled>
+              <input type="text" class="form-control" id="inputName" value="<?php echo htmlspecialchars($nombre_empleado . ' ' . $apellido_empleado); ?>" disabled>
           </div>
           <div class="col-6">
               <label for="inputDate" class="form-label">Fecha Inicio</label>
@@ -125,12 +132,10 @@ else {
           <div class="col-md-4">
               <label for="inputState" class="form-label">Motivo</label>
               <select id="inputState" class="form-select" name="motivo" required>
-                  <option selected>Elegir...</option>
-                  <?php
-                  foreach($lista_opciones as $op){
-                    echo '<option>'.$op['nombre'].'</option>';
-                  }
-                  ?>
+                  <option value="" selected>Elegir...</option>
+                  <?php foreach ($lista_opciones as $op): ?>
+                      <option value="<?php echo (int)$op['id']; ?>"><?php echo htmlspecialchars($op['nombre']); ?></option>
+                  <?php endforeach; ?>
               </select>
           </div>
           <div class="col-md-8">

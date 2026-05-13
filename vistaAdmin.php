@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['nombre_usuario'])) {
+if (!isset($_SESSION['nombre_usuario']) || $_SESSION['id_tipo_usuario'] !== 1) {
     header("Location: index.php");
     exit();
 }
@@ -18,33 +18,27 @@ $stmt_empleado->execute();
 $result_empleado = $stmt_empleado->get_result();
 
 
+$MensajeMostrar = "";
 if ($result_empleado->num_rows == 1) {
     $row_empleado = $result_empleado->fetch_assoc();
     $idEmpleado = $row_empleado['id'];
 
-    if ($row_empleado['genero'] == 'Masculino') {
-        $MensajeMostrar = "Bienvenido ";
-    } else {
-        $MensajeMostrar = "Bienvenida ";
-    }
-    $nombre_empleado = $row_empleado['nombre'];
-    $apellido_empleado = $row_empleado['apellido'];
-    $MensajeMostrar.=$nombre_empleado . ' ' . $apellido_empleado.'<br>';
-}    
+    $saludo = $row_empleado['genero'] == 'Masculino' ? "Bienvenido " : "Bienvenida ";
+    $MensajeMostrar = $saludo . htmlspecialchars($row_empleado['nombre'] . ' ' . $row_empleado['apellido']) . '<br>';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if(isset($_POST['action'])){
-    $id_permiso = $_POST['id_permiso'];
+    $id_permiso = (int) $_POST['id_permiso'];
     $action = $_POST['action'];
 
-    if($action === 'pendiente') {
-      $nuevo_estado = 1;
-    } else if ($action === 'aprobar') {
-        $nuevo_estado = 2;
-    } elseif ($action === 'rechazar') {
-        $nuevo_estado = 3;
+    $estados = ['pendiente' => 1, 'aprobar' => 2, 'rechazar' => 3];
+    if (!array_key_exists($action, $estados)) {
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
+    $nuevo_estado = $estados[$action];
 
     $stmt_update = $conn->prepare("UPDATE Permiso SET id_estado_permiso = ? WHERE id = ?");
     $stmt_update->bind_param("ii", $nuevo_estado, $id_permiso);
@@ -152,15 +146,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </table>
     </div>
     <div class="acciones">
-       <a href="archivos/Vacaciones.xlsx" download>Descargar Excel</a>
-        <button id="confirmarBtn" style="display:none;">Confirmar y Enviar Correos</button>
+        <a href="archivos/Vacaciones.xlsx" download>Descargar Excel</a>
     </div>
 
     </div>
   </div>
 
 
-  <?php include 'controladores/footer.php'; ?>
+  <?php
+    $conn->close();
+    include 'controladores/footer.php';
+  ?>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
@@ -181,9 +177,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 </body>
-
-<?php 
-    $conn->close(); 
-?>
 
 </html>
