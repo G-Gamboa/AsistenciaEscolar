@@ -35,8 +35,8 @@ Sistema web para gestionar la asistencia y permisos del personal de **América L
 ```
 AsistenciaEscolar/
 ├── controladores/
-│   ├── config.php            # Credenciales de BD (excluido de git)
-│   ├── conexion.php          # Conexión MySQLi
+│   ├── config.php            
+│   ├── conexion.php         
 │   ├── consultaVacaciones.php
 │   ├── footer.php
 │   ├── generarExcel.php
@@ -54,9 +54,9 @@ AsistenciaEscolar/
 │   ├── cargarTabla.js
 │   ├── generarExcel.js
 │   └── opcionesAdmin.js
-├── Json/vendor/              # Dependencias Composer (excluido de git)
-├── archivos/                 # Archivos Excel generados (excluido de git)
-├── index.php                 # Login
+├── Json/vendor/              
+├── archivos/                 
+├── index.php                 
 ├── solicitudPermiso.php
 ├── vistaAdmin.php
 └── vistaUsuario.php
